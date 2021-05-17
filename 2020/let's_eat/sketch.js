@@ -1,5 +1,5 @@
-let agentNum = 50;
-let agent = [];
+let ballNum = 40;
+let ball = [];
 let backgroundColor;
 let circleColor;
 
@@ -7,11 +7,14 @@ function setup() {
 	createCanvas(windowWidth, windowHeight);
 	backgroundColor = pickColor();
 	circleColor = pickColor();
-	drawingContext.shadowBlur = 10;
-	drawingContext.shadowColor = 'black';
+  drawingContext.shadowBlur = 6;
+  drawingContext.shadowColor = 'black';
 	noStroke();
-	for (let i = 0; i < agentNum; i++) {
-		agent[i] = new Agent(random(width), random(height), random(100), pickColor());
+	for (let i = 0; i < ballNum; i++) {
+    const x = Math.random() * width;
+    const y = Math.random() * height;
+    const d = Math.random() * 150; 
+		ball[i] = new Agent(x, y, d);
 	}
 	textSize(64);
 	textAlign(CENTER);
@@ -20,17 +23,18 @@ function setup() {
 
 function draw() {
 	background(backgroundColor);
-	fill(circleColor)
+	fill(circleColor);
+
 	push();
 	translate(width/2, height/2);
-	drawSomething(width/2);
+  drawSomething(width/2);
 	pop();
+
 	fill(255);
 	text("Let's Eat!", width/2, height/2);
+
 	push();
-	drawingContext.shadowOffsetX = 5 * sin(frameCount * 0.02);
-	drawingContext.shadowOffsetY = -5 * cos(frameCount * 0.02);
-	agent.forEach((a) => {
+	ball.forEach((a) => {
 		a.display();
 		a.update();
 	});
@@ -40,26 +44,27 @@ function draw() {
 
 function drawSomething(r) {
 	beginShape();
-	for (let i = 0; i < TWO_PI;i+=radians(1)) {
-		let x = r * sin(i) * noise(i * 0.002, frameCount * 0.002);
-		let y = r/2 * cos(i) * noise(i * 0.002, frameCount * 0.002);
-		curveVertex(x, y);
+	for (let i = 0; i < TWO_PI;i+=radians(10)) {
+    const thisNoise = noise(i * 0.003, frameCount * 0.002)
+		let x = r * sin(i) * thisNoise;
+    let y = r/2 * cos(i) * thisNoise;
+    curveVertex(x, y);
 	}
 	endShape(CLOSE);
 }
 
 function pickColor() {
 	let colors = ["#26A7FF", "#7828FD", "#FF5126", "#FDF028"];
-	return colors[floor(random(colors.length))];
+	return colors[Math.floor(Math.random() * colors.length)];
 }
 
 class Agent {
-	constructor(x, y, d, color) {
+	constructor(x, y, d) {
 		this.vector = createVector(x, y);
 		this.randomVector = p5.Vector.random2D();
 		this.d = d;
 		this.r = d/2;
-		this.color = color;
+		this.color = pickColor();
 	}
 
 	display() {
